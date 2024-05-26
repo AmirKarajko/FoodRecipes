@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react';
 
 class PageRenderer extends Component {
@@ -9,6 +8,7 @@ class PageRenderer extends Component {
             currentPage: 'home',
             recipeId: null,
             recipesData: [],
+            filteredRecipesData: [],
             error: null
         };
     }
@@ -20,7 +20,13 @@ class PageRenderer extends Component {
     fetchRecipesData = () => {
         fetch('http://localhost:5000/api/recipes')
         .then(response => response.json())
-        .then(recipesData => { this.setState({ recipesData, error: null }) })
+        .then(recipesData => { 
+            this.setState({ 
+                recipesData, 
+                filteredRecipesData: recipesData,
+                error: null 
+            }) 
+        })
         .catch(error => console.error('Error fetching data:', error));
     }
 
@@ -28,8 +34,18 @@ class PageRenderer extends Component {
         this.setState({ currentPage: pageName, recipeId: id });
     }
 
+    handleSearch = (e) => {
+        const query = e.target.value.toLowerCase();
+        const { recipesData } = this.state;
+        const filteredRecipesData = recipesData.filter(recipe => 
+            recipe.recipe_name.toLowerCase().includes(query)
+        );
+        this.setState({ filteredRecipesData });
+    }
+
     render() {
-        const { currentPage, recipesData } = this.state;
+        const { currentPage, filteredRecipesData } = this.state;
+
         let pageContent, tableContent;
         switch (currentPage) {
             case 'home':
@@ -43,7 +59,7 @@ class PageRenderer extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                {recipesData.map(recipe => (
+                {filteredRecipesData.map(recipe => (
                     <tr key={recipe.recipe_id}>
                         <td>{recipe.recipe_id}</td>
                         <td>{recipe.recipe_name}</td>
@@ -58,11 +74,14 @@ class PageRenderer extends Component {
                 pageContent = 
                 <div>
                     <h1>Food Recipes</h1>
+                    <div>
+                        <input type="text" placeholder="Search" onChange={this.handleSearch} />
+                    </div>
                     {tableContent}
                 </div>;
                 break;
             case 'recipes':
-                let recipeItem = recipesData.find(item => item.recipe_id === this.state.recipeId);
+                let recipeItem = filteredRecipesData.find(item => item.recipe_id === this.state.recipeId);
 
                 pageContent =
                 <div>
