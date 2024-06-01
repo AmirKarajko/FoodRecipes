@@ -46,7 +46,7 @@ class PageRenderer extends Component {
         const query = e.target.value.toLowerCase();
         const { recipesData } = this.state;
         const filteredRecipesData = recipesData.filter(recipe =>
-            recipe.recipe_name.toLowerCase().includes(query)
+            recipe.recipe_name.toLowerCase().includes(query) || recipe.recipe_category.toLowerCase().includes(query)
         );
         this.setState({ 
             filteredRecipesData: filteredRecipesData,
@@ -78,16 +78,16 @@ class PageRenderer extends Component {
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Name</th>
+                            <th>Category</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {currentRecipes.map(recipe => (
                             <tr key={recipe.recipe_id}>
-                                <td>{recipe.recipe_id}</td>
                                 <td>{recipe.recipe_name}</td>
+                                <td>{recipe.recipe_category}</td>
                                 <td>
                                     <Link to={`/recipes/${recipe.recipe_id}`}>View</Link>
                                 </td>
