@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 import Navbar from './components/navbar';
 import Footer from './components/footer';
 
-function RecipesPage ({ filteredRecipesData }) {
+let recipeItem;
+
+function RecipesPage () {
     const { id } = useParams();
-    const recipeItem = filteredRecipesData.find(item => item.recipe_id === parseInt(id));
+
+    useEffect(() => {
+        fetch(`http://localhost:5000/api/recipes/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            recipeItem = data[0];
+            console.log(recipeItem);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }, [id]);
+
     if (!recipeItem) return <div>Recipe not found</div>;
 
     const splitInstructionText = recipeItem.recipe_instruction.split(". ");
