@@ -86,7 +86,7 @@ class App extends Component {
             <Router>
                 <Routes>
                     <Route exact path="/" element={<HomePage state={this.state} handleSearch={this.handleSearch} inputRef={this.inputRef} clearSearch={this.clearSearch} handleRowClick={this.handleRowClick} handlePageChange={this.handlePageChange} />} />
-                    <Route path="/recipes/:id" element={<RecipesPage filteredRecipesData={this.state.filteredRecipesData} />} />
+                    <Route path="/recipes/:id" element={<RecipesPage />} />
                 </Routes>
             </Router>
         );
