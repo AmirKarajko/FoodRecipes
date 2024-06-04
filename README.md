@@ -1,26 +1,32 @@
 # FOOD RECIPES
 Created in React.
 
-## How to start project
+## Getting Started
+To start the project, follow these steps:
 
-* Import foodrecipes.sql to phpMyAdmin.
-* Execute queries from sql folder.
+1. Import 'foodrecipes.sql' into database.
+2. Execute queries from the 'sql' folder.
 
-* Terminal 1 (Server):
-	- cd server
-	- node server.js
-* Terminal 2 (Client):
-	- npm run build
-	- npm start
+### Terminal 1 (Server):
+	cd server
+	node server.js
+  
+### Terminal 2 (Client):
+	npm run build
+	npm start
 
-## How to create react app project
+## Creating a React App Project
+	npx create-react-app foodrecipes
+ 	cd foodrecipes
+	npm install
 
-1. npx create-react-app foodrecipes
-2. cd foodrecipes
-3. npm install
+### Creating Backend
+ 	md server
+	cd server
+ 	npm install cors mysql express
 
-### How to create backend
-1. create server folder
-2. cd server
-3. create api.js, db.js & server.js files
-4. npm install cors mysql express
+create api.js, db.js & server.js files
+
+# Copyright © 2024
+
+	
