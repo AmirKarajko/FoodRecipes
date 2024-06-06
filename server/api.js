@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const bodyParser = require('body-parser');
 const db = require('./db');
+
+router.use(bodyParser.json());
 
 router.get('/recipes', (req, res) => {
     db.query(`
@@ -82,5 +85,40 @@ router.get('/recipes/:id', (req, res) => {
 });
 });
 
+router.post('/add_new_recipe', (req, res) => {
+    const { name, category, instructions, ingredients } = req.body;
+
+    const query = "INSERT INTO recipes (name, category, instructions) VALUES (?, ?, ?)";
+    db.query(query, [name, category, instructions], (err, results) => {
+        if (err) {
+            console.error('Error inserting recipe: ', err);
+            res.status(500).send('Error inserting recipe');
+            return;
+        }
+        // console.log('Recipe inserted successfully');
+        res.sendStatus(200);
+
+        const latestRecipeIdQuery = "SELECT id FROM recipes ORDER BY id DESC LIMIT 1";
+
+        db.query(latestRecipeIdQuery, (err, results) => {
+            if (err) {
+                console.error('Error fetching latest recipe ID: ', err);
+                throw err;
+            }
+
+            const latestRecipeId = results[0].id;
+            const values = ingredients.map(ingredient => [latestRecipeId, ingredient.ingredientName, ingredient.ingredientQuantity]);
+
+            const query2 = "INSERT INTO ingredients (recipe_id, name, quantity) VALUES ?";
+            db.query(query2, [values], (err, results) => {
+                if (err) {
+                    console.error('Error inserting ingredient: ', err);
+                    throw err;
+                }
+                // console.log('Ingredients inserted successfully');
+            });
+        });
+    });
+});
 
 module.exports = router;

@@ -69,8 +69,8 @@ const HomePage = () => {
 
             <div className="container">
                 <div className="input-group">
-                    <input className="text-input" id="searchInput" type="text" placeholder="Search" onChange={handleSearch} value={searchQuery} ref={inputRef} />
-                    <input className="button-input" type="button" value="Clear" onClick={clearSearch} />
+                    <input id="searchInput" type="text" placeholder="Search" onChange={handleSearch} value={searchQuery} ref={inputRef} />
+                    <input type="button" value="Clear" onClick={clearSearch} />
                 </div>
 
                 <table>
