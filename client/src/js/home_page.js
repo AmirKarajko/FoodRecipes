@@ -60,11 +60,16 @@ const HomePage = () => {
     };
 
     const handleSort = (criteria) => {
-        setFilteredRecipesData(prevData => [...prevData].sort((a, b) => {
-            if (a[criteria] < b[criteria]) return -1;
-            if (a[criteria] > b[criteria]) return 1;
-            return 0;
-        }));
+        setFilteredRecipesData(prevData => {
+            const sortedData = [...prevData].sort((a, b) => {
+                const valueA = a[criteria].toLowerCase();
+                const valueB = b[criteria].toLowerCase();
+                if (valueA < valueB) return -1;
+                if (valueA > valueB) return 1;
+                return 0;
+            });
+            return sortedData;
+        });
     }
 
     const indexOfLastRecipe = (currentPageNumber + 1) * recipesPerPage;
