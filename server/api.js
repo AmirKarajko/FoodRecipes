@@ -123,4 +123,16 @@ router.post('/add_new_recipe', (req, res) => {
     });
 });
 
+router.delete('/delete_recipe/:id', (req, res) => {
+    const { id } = req.params;
+    try {
+        db.query('DELETE FROM ingredients WHERE recipe_id = ?', [id]);
+        db.query('DELETE FROM recipes WHERE id = ?', [id]);
+        res.status(200).json({ message: 'Recipe deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting recipe:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;
