@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import Navbar from './components/navbar';
-import Footer from './components/footer';
+import Navbar from '../components/navbar';
+import Footer from '../components/footer';
 
 function RecipesPage() {
     const { id } = useParams();

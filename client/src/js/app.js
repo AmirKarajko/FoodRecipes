@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import HomePage from './home_page';
-import RecipesPage from './recipes_page';
-import AddNewRecipePage from './add_new_recipe_page';
-import DeleteRecipePage from './delete_recipe.page';
+import HomePage from './pages/home';
+import RecipesPage from './pages/recipes';
+import AddNewRecipePage from './pages/add_new_recipe';
+import DeleteRecipePage from './pages/delete_recipe';
 
 const App = () => {
     return (
