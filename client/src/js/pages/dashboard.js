@@ -4,7 +4,7 @@ import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 import Pagination from '../components/pagination';
 
-const HomePage = () => {
+const DashboardPage = () => {
     const [recipesData, setRecipesData] = useState([]);
     const [filteredRecipesData, setFilteredRecipesData] = useState([]);
     const [currentPageNumber, setCurrentPageNumber] = useState(0);
@@ -118,4 +118,4 @@ const HomePage = () => {
     );
 }
 
-export default HomePage;
+export default DashboardPage;
