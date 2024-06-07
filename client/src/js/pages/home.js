@@ -86,22 +86,24 @@ const HomePage = () => {
                     <input type="button" value="Clear" onClick={clearSearch} />
                 </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th onClick={() => handleSort('recipe_name')}>Name</th>
-                            <th onClick={() => handleSort('recipe_category')}>Category</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentRecipes.map(recipe => (
-                            <tr key={recipe.recipe_id} onClick={() => handleRowClick(`/recipes/${recipe.recipe_id}`)}>
-                                <td>{recipe.recipe_name}</td>
-                                <td>{recipe.recipe_category}</td>
+                {currentRecipes != null && currentRecipes.length > 0 ? (
+                    <table>
+                        <thead>
+                            <tr>
+                                <th onClick={() => handleSort('recipe_name')}>Name</th>
+                                <th onClick={() => handleSort('recipe_category')}>Category</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {currentRecipes.map(recipe => (
+                                <tr key={recipe.recipe_id} onClick={() => handleRowClick(`/recipes/${recipe.recipe_id}`)}>
+                                    <td>{recipe.recipe_name}</td>
+                                    <td>{recipe.recipe_category}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (<p>No recipes</p>)}
 
                 <Pagination
                     recipesPerPage={recipesPerPage}
