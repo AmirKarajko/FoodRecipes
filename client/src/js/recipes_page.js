@@ -33,7 +33,7 @@ function RecipesPage() {
 
     const splitInstructionText = recipeItem.recipe_instruction.split(". ");
     const formattedInstructionText = splitInstructionText.join("\n\n");
-
+    
     return (
         <div>
             <Navbar />
@@ -53,6 +53,8 @@ function RecipesPage() {
 
                 <h3>Instructions:</h3>
                 <textarea readOnly value={formattedInstructionText} />
+
+                <input type="button" onClick={() => window.location.href = `/delete_recipe/${id}`} value="Delete recipe" />
             </div>
 
             <Footer />
