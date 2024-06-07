@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import Navbar from './components/navbar';
-import Footer from './components/footer';
-import Pagination from './components/pagination';
+import Navbar from '../components/navbar';
+import Footer from '../components/footer';
+import Pagination from '../components/pagination';
 
 const HomePage = () => {
     const [recipesData, setRecipesData] = useState([]);
