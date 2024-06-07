@@ -43,7 +43,7 @@ function AddNewRecipePage() {
 
     const handleIngredientButton = () => {
         if (ingredientName.trim() === '' || ingredientQuantity.trim() === '') {
-            alert("Please enter values for both values of ingredient.");
+            alert("Please enter values for both ingredients.");
             return;
         }
         setIngredients([...ingredients, { ingredientName, ingredientQuantity }]);
@@ -76,7 +76,7 @@ function AddNewRecipePage() {
                         <input id="ingredientName" type="text" value={ingredientName} onChange={(e) => setIngredientName(e.target.value)} />
                         <label htmlFor="ingredientQuantity">Quantity:</label>
                         <input id="ingredientQuantity" type="text" value={ingredientQuantity} onChange={(e) => setIngredientQuantity(e.target.value)} />
-                        <input type="button" onClick={handleIngredientButton} value="Add" />
+                        <input type="button" onClick={handleIngredientButton} value="Add ingredient" />
                     </div>
 
                     <ul>

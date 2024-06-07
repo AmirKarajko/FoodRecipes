@@ -45,13 +45,11 @@ function RecipesPage() {
 
             <div className="container">
                 <h3>Ingredients:</h3>
-                <ul>
+                {recipeItem.ingredients.length > 0 ? (<ul>
                     {recipeItem.ingredients.map((ingredient, index) => (
-                        <li key={index}>
-                            {ingredient.ingredient_quantity} of {ingredient.ingredient_name}
-                        </li>
+                        <li key={index}>{ingredient.ingredient_quantity} of {ingredient.ingredient_name}</li>
                     ))}
-                </ul>
+                </ul>) : (<p>No ingredients</p>)}
 
                 <h3>Instructions:</h3>
                 <textarea readOnly value={formattedInstructionText} />
