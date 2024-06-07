@@ -7,6 +7,7 @@ import Footer from '../components/footer';
 function RecipesPage() {
     const { id } = useParams();
     const [recipeItem, setRecipeItem] = useState(null);
+    const [recipeImage, setRecipeImage] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -26,6 +27,14 @@ function RecipesPage() {
                 console.error('Error fetching data:', error);
                 setLoading(false);
             });
+
+        fetch(`http://localhost:5000/api/images/${id}`)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                setRecipeImage(url);
+            })
+            .catch(err => console.error('Error fetching image: ', err));
     }, [id]);
 
     if (loading) return <div>Loading...</div>;
@@ -42,6 +51,10 @@ function RecipesPage() {
                 <h1>{recipeItem.recipe_name}</h1>
                 <h2>{recipeItem.recipe_category}</h2>
             </header>
+
+            <div>
+                {recipeImage && <img alt="" src={recipeImage} />}
+            </div>
 
             <div className="container">
                 <h3>Ingredients:</h3>

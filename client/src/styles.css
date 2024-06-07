@@ -151,3 +151,9 @@ textarea {
     height: 250px;
     resize: none;
 }
+
+img {
+    width: 400px;
+    display: block;
+    margin: 0 auto;
+}
