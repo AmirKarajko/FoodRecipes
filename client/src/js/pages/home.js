@@ -86,7 +86,7 @@ const HomePage = () => {
                     <input type="button" value="Clear" onClick={clearSearch} />
                 </div>
 
-                {currentRecipes.length > 0 ? (
+                {currentRecipes != null && currentRecipes.length > 0 ? (
                     <table>
                         <thead>
                             <tr>
