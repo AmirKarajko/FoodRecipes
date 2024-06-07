@@ -59,6 +59,14 @@ const HomePage = () => {
         window.location.href = url;
     };
 
+    const handleSort = (criteria) => {
+        setFilteredRecipesData(prevData => [...prevData].sort((a, b) => {
+            if (a[criteria] < b[criteria]) return -1;
+            if (a[criteria] > b[criteria]) return 1;
+            return 0;
+        }));
+    }
+
     const indexOfLastRecipe = (currentPageNumber + 1) * recipesPerPage;
     const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
     const currentRecipes = filteredRecipesData.slice(indexOfFirstRecipe, indexOfLastRecipe);
@@ -76,8 +84,8 @@ const HomePage = () => {
                 <table>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Category</th>
+                            <th onClick={() => handleSort('recipe_name')}>Name</th>
+                            <th onClick={() => handleSort('recipe_category')}>Category</th>
                         </tr>
                     </thead>
                     <tbody>
