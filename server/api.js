@@ -90,13 +90,7 @@ router.get('/recipes/:id', (req, res) => {
 });
 
 router.post('/add_new_recipe', (req, res) => {
-    if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send('No files were uploaded.');
-    }
-
     const { name, category, instructions, ingredients } = req.body;
-    const image = req.files.image;
-
     const ingredientsArray = JSON.parse(ingredients);
 
     db.query("INSERT INTO recipes (name, category, instructions) VALUES (?, ?, ?)", [name, category, instructions], (err, results) => {
@@ -106,41 +100,36 @@ router.post('/add_new_recipe', (req, res) => {
             return;
         }
         res.sendStatus(200);
+    });
+
+    db.query("SELECT id FROM recipes ORDER BY id DESC LIMIT 1", (err, results) => {
+        if (err) {
+            console.error('Error fetching recipe ID: ', err);
+            return;
+        }
+        const recipeID = results[0].id;
 
         if (ingredientsArray != null && ingredientsArray.length > 0) {
-            db.query("SELECT id FROM recipes ORDER BY id DESC LIMIT 1", (err, results) => {
+            const values = ingredientsArray.map(ingredient => [recipeID, ingredient.ingredientName, ingredient.ingredientQuantity]);
+            db.query("INSERT INTO ingredients (recipe_id, name, quantity) VALUES ?", [values], (err, results) => {
                 if (err) {
-                    console.error('Error fetching latest recipe ID: ', err);
-                    throw err;
+                    console.error('Error inserting ingredient: ', err);
+                    return;
                 }
-    
-                const latestRecipeId = results[0].id;
-                const values = ingredientsArray.map(ingredient => [latestRecipeId, ingredient.ingredientName, ingredient.ingredientQuantity]);
-    
-                db.query("INSERT INTO ingredients (recipe_id, name, quantity) VALUES ?", [values], (err, results) => {
-                    if (err) {
-                        console.error('Error inserting ingredient: ', err);
-                        throw err;
-                    }
-                });
             });
         }
 
-        db.query("SELECT id FROM recipes ORDER BY id DESC LIMIT 1", (err, results) => {
-            if (err) {
-                console.error('Error fetching latest recipe ID: ', err);
-                throw err;
+        if (req.files && Object.keys(req.files).length > 0) {
+            const image = req.files.image;
+            if (image && image.mimetype.startsWith('image/')) {
+                db.query("INSERT INTO images (recipe_id, name, data) VALUES (?, ?, ?)", [recipeID, image.name, image.data], (err, results) => {
+                    if (err) {
+                        console.error('Error inserting image: ', err);
+                        return;
+                    }
+                });
             }
-
-            const latestRecipeId = results[0].id;
-            db.query("INSERT INTO images (recipe_id, name, data) VALUES (?, ?, ?)", [latestRecipeId, image.name, image.data], (err, results) => {
-                if (err) {
-                    console.error('Error inserting image: ', err);
-                    throw err;
-                }
-            });
-        });
-
+        }
     });
 });
 
@@ -166,7 +155,7 @@ router.get('/images/:id', (req, res) => {
         }
 
         if(results.length === 0) {
-            res.status(400).send('Image not found');
+            // res.status(400).send('Image not found');
             return;
         }
 

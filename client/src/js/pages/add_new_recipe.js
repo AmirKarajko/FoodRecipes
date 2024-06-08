@@ -12,7 +12,12 @@ function AddNewRecipePage() {
     const [recipeImage, setRecipeImage] = useState(null);
 
     const handleImageChange = (e) => {
-        setRecipeImage(e.target.files[0]);
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            setRecipeImage(e.target.files[0]);
+        } else {
+            alert("Please select a valid image file.");
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -28,9 +33,7 @@ function AddNewRecipePage() {
             formData.append('ingredients', null);
         
         }
-        if (recipeImage != null) {
-            formData.append('image', recipeImage);
-        }
+        formData.append('image', recipeImage);
 
         try {
             const response = await fetch('http://localhost:5000/api/add_new_recipe', {
@@ -45,6 +48,9 @@ function AddNewRecipePage() {
                 setRecipeCategory('');
                 setRecipeInstructions('');
                 setIngredients([]);
+                setRecipeImage(null);
+
+                window.location.href = "/";
             } else {
                 console.error('Failed to add recipe');
             }
@@ -107,7 +113,7 @@ function AddNewRecipePage() {
 
                     <div className="form-group">
                         <label htmlFor="recipeImage">Image:</label>
-                        <input id="recipeImage" type="file" onChange={handleImageChange} required />
+                        <input id="recipeImage" type="file" onChange={handleImageChange} />
                     </div>
 
                     <div className="form-group">
