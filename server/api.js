@@ -1,9 +1,11 @@
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const db = require('./db');
 
 router.use(bodyParser.json());
+router.use(fileUpload());
 
 router.get('/recipes', (req, res) => {
     db.query(`
@@ -89,36 +91,44 @@ router.get('/recipes/:id', (req, res) => {
 
 router.post('/add_new_recipe', (req, res) => {
     const { name, category, instructions, ingredients } = req.body;
+    const ingredientsArray = JSON.parse(ingredients);
 
-    const query = "INSERT INTO recipes (name, category, instructions) VALUES (?, ?, ?)";
-    db.query(query, [name, category, instructions], (err, results) => {
+    db.query("INSERT INTO recipes (name, category, instructions) VALUES (?, ?, ?)", [name, category, instructions], (err, results) => {
         if (err) {
             console.error('Error inserting recipe: ', err);
             res.status(500).send('Error inserting recipe');
             return;
         }
         res.sendStatus(200);
+    });
 
-        if (ingredients.length > 0) {
-            const latestRecipeIdQuery = "SELECT id FROM recipes ORDER BY id DESC LIMIT 1";
+    db.query("SELECT id FROM recipes ORDER BY id DESC LIMIT 1", (err, results) => {
+        if (err) {
+            console.error('Error fetching recipe ID: ', err);
+            return;
+        }
+        const recipeID = results[0].id;
 
-            db.query(latestRecipeIdQuery, (err, results) => {
+        if (ingredientsArray != null && ingredientsArray.length > 0) {
+            const values = ingredientsArray.map(ingredient => [recipeID, ingredient.ingredientName, ingredient.ingredientQuantity]);
+            db.query("INSERT INTO ingredients (recipe_id, name, quantity) VALUES ?", [values], (err, results) => {
                 if (err) {
-                    console.error('Error fetching latest recipe ID: ', err);
-                    throw err;
+                    console.error('Error inserting ingredient: ', err);
+                    return;
                 }
-    
-                const latestRecipeId = results[0].id;
-                const values = ingredients.map(ingredient => [latestRecipeId, ingredient.ingredientName, ingredient.ingredientQuantity]);
-    
-                const query2 = "INSERT INTO ingredients (recipe_id, name, quantity) VALUES ?";
-                db.query(query2, [values], (err, results) => {
+            });
+        }
+
+        if (req.files && Object.keys(req.files).length > 0) {
+            const image = req.files.image;
+            if (image && image.mimetype.startsWith('image/')) {
+                db.query("INSERT INTO images (recipe_id, name, data) VALUES (?, ?, ?)", [recipeID, image.name, image.data], (err, results) => {
                     if (err) {
-                        console.error('Error inserting ingredient: ', err);
-                        throw err;
+                        console.error('Error inserting image: ', err);
+                        return;
                     }
                 });
-            });
+            }
         }
     });
 });
@@ -126,6 +136,7 @@ router.post('/add_new_recipe', (req, res) => {
 router.delete('/delete_recipe/:id', (req, res) => {
     const { id } = req.params;
     try {
+        db.query('DELETE FROM images WHERE recipe_id = ?', [id]);
         db.query('DELETE FROM ingredients WHERE recipe_id = ?', [id]);
         db.query('DELETE FROM recipes WHERE id = ?', [id]);
         res.status(200).json({ message: 'Recipe deleted successfully' });
@@ -133,6 +144,25 @@ router.delete('/delete_recipe/:id', (req, res) => {
         console.error('Error deleting recipe:', err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
+});
+
+router.get('/images/:id', (req, res) => {
+    const { id } = req.params;
+    db.query(`SELECT data FROM images WHERE recipe_id = ${id}`, (err, results) => {
+        if (err) {
+            res.status(500).send(err);
+            return;
+        }
+
+        if(results.length === 0) {
+            // res.status(400).send('Image not found');
+            return;
+        }
+
+        const data = results[0].data;
+
+        res.send(data);
+    });
 });
 
 module.exports = router;

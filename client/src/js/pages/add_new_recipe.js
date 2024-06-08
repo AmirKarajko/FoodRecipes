@@ -9,37 +9,55 @@ function AddNewRecipePage() {
     const [ingredientName, setIngredientName] = useState('');
     const [ingredientQuantity, setIngredientQuantity] = useState('');
     const [ingredients, setIngredients] = useState([]);
+    const [recipeImage, setRecipeImage] = useState(null);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            setRecipeImage(e.target.files[0]);
+        } else {
+            alert("Please select a valid image file.");
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+    
+        const formData = new FormData();
+        formData.append('name', recipeName);
+        formData.append('category', recipeCategory);
+        formData.append('instructions', recipeInstructions);
+        if (ingredients.length > 0) {
+            formData.append('ingredients', JSON.stringify(ingredients));
+        } else {
+            formData.append('ingredients', null);
+        
+        }
+        formData.append('image', recipeImage);
+
         try {
             const response = await fetch('http://localhost:5000/api/add_new_recipe', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: recipeName,
-                    category: recipeCategory,
-                    instructions: recipeInstructions,
-                    ingredients: ingredients,
-                }),
+                body: formData,
             });
-
+    
             if (response.ok) {
                 console.log('Recipe added successfully!');
-
+    
                 setRecipeName('');
                 setRecipeCategory('');
                 setRecipeInstructions('');
                 setIngredients([]);
+                setRecipeImage(null);
+
+                window.location.href = "/";
             } else {
                 console.error('Failed to add recipe');
             }
         } catch (error) {
             console.error('Failed to add recipe', error);
         }
-    };
+    };    
 
     const handleIngredientButton = () => {
         if (ingredientName.trim() === '' || ingredientQuantity.trim() === '') {
@@ -92,6 +110,12 @@ function AddNewRecipePage() {
                         <label htmlFor="recipeInstructions">Instructions:</label>
                         <textarea id="recipeInstructions" value={recipeInstructions} onChange={(e) => setRecipeInstructions(e.target.value)} />
                     </div>
+
+                    <div className="form-group">
+                        <label htmlFor="recipeImage">Image:</label>
+                        <input id="recipeImage" type="file" onChange={handleImageChange} accept="image/*" />
+                    </div>
+
                     <div className="form-group">
                         <input type="submit" value="Add recipe" />
                     </div>
