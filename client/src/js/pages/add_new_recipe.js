@@ -113,7 +113,7 @@ function AddNewRecipePage() {
 
                     <div className="form-group">
                         <label htmlFor="recipeImage">Image:</label>
-                        <input id="recipeImage" type="file" onChange={handleImageChange} />
+                        <input id="recipeImage" type="file" onChange={handleImageChange} accept="image/*" />
                     </div>
 
                     <div className="form-group">

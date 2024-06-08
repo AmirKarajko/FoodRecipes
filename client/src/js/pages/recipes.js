@@ -49,12 +49,9 @@ function RecipesPage() {
 
             <header>
                 <h1>{recipeItem.recipe_name}</h1>
-                <h2>{recipeItem.recipe_category}</h2>
-            </header>
-
-            <div>
+                <h3>{recipeItem.recipe_category}</h3>
                 {recipeImage && <img alt="" src={recipeImage} />}
-            </div>
+            </header>
 
             <div className="container">
                 <h3>Ingredients:</h3>
