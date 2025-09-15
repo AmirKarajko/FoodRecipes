@@ -2,7 +2,7 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const db = require('./db');
+const db = require('./database');
 
 router.use(bodyParser.json());
 router.use(fileUpload());
