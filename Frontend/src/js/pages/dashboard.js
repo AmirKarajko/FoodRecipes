@@ -11,30 +11,31 @@ const DashboardPage = () => {
         recipesData: [],
         searchQuery: "",
         currentPageNumber: 0,
-        recipesPerPage: 15
+        recipesPerPage: 5
     });
+
+    const [loading, setLoading] = useState(false);
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     const { recipesData, searchQuery, currentPageNumber, recipesPerPage } = state;
 
     useEffect(() => {
+        const fetchRecipesData = () => {
+            setLoading(true);
+            fetch('http://localhost:5000/api/recipes')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    setState(prev => ({ ...prev, recipesData: data }));
+                })
+                .catch(() => {})
+                .finally(() => setLoading(false));
+        };
+
         fetchRecipesData();
     }, []);
-
-    const fetchRecipesData = () => {
-        fetch('http://localhost:5000/api/recipes')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setState(prev => ({ ...prev, recipesData: data }));
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-    };
 
     const handleSearch = (e) => {
         const query = e.target.value.toLowerCase();
@@ -67,12 +68,18 @@ const DashboardPage = () => {
     };
 
     const handleSort = (criteria) => {
+        let direction = 'asc';
+        if (sortConfig.key === criteria && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key: criteria, direction });
+
         setState(prev => {
             const sortedData = [...filteredRecipes].sort((a, b) => {
                 const valueA = a[criteria].toLowerCase();
                 const valueB = b[criteria].toLowerCase();
-                if (valueA < valueB) return -1;
-                if (valueA > valueB) return 1;
+                if (valueA < valueB) return direction === 'asc' ? -1 : 1;
+                if (valueA > valueB) return direction === 'asc' ? 1 : -1;
                 return 0;
             });
             return {
@@ -80,6 +87,29 @@ const DashboardPage = () => {
                 recipesData: sortedData
             };
         });
+    };
+
+    const handleDelete = (id) => {
+        if (window.confirm('Are you sure you want to delete this recipe?')) {
+            fetch(`http://localhost:5000/api/delete_recipe/${id}`, { method: 'DELETE' })
+                .then(() => {
+                    const fetchRecipesData = () => {
+                        setLoading(true);
+                        fetch('http://localhost:5000/api/recipes')
+                            .then(response => {
+                                if (!response.ok) throw new Error('Network response was not ok');
+                                return response.json();
+                            })
+                            .then(data => {
+                                setState(prev => ({ ...prev, recipesData: data }));
+                            })
+                            .catch(() => {})
+                            .finally(() => setLoading(false));
+                    };
+                    fetchRecipesData();
+                })
+                .catch(() => {});
+        }
     };
 
     const filteredRecipes = useMemo(() => {
@@ -96,11 +126,96 @@ const DashboardPage = () => {
     }, [filteredRecipes, currentPageNumber, recipesPerPage]);
 
     return (
-        <div>
+        <>
+            <style>{`
+                /* Search input and clear button */
+                .search-container {
+                    margin-bottom: 15px;
+                    display: flex;
+                    align-items: center;
+                    max-width: 90%;
+                }
+                .search-input {
+                    flex-grow: 1;
+                    padding: 10px 12px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px 0 0 4px;
+                    font-size: 16px;
+                    outline: none;
+                    transition: border-color 0.3s ease;
+                }
+                .search-input:focus {
+                    border-color: #ff4d4f;
+                    box-shadow: 0 0 5px rgba(255, 77, 79, 0.5);
+                }
+                .clear-button {
+                    padding: 8px 16px;
+                    background-color: #ff4d4f;
+                    border: none;
+                    color: white;
+                    cursor: pointer;
+                    border-radius: 0 4px 4px 0;
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin-left: 4px;
+                    box-shadow: 0 2px 6px rgba(255, 77, 79, 0.4);
+                    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+                }
+                .clear-button:hover {
+                    background-color: #d9363e;
+                    box-shadow: 0 4px 10px rgba(217, 54, 62, 0.6);
+                }
+
+                /* Table styles */
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-family: Arial, sans-serif;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                }
+                thead {
+                    background-color: #ff4d4f;
+                    color: white;
+                }
+                thead th {
+                    padding: 12px 15px;
+                    text-align: left;
+                    cursor: pointer;
+                    user-select: none;
+                }
+                thead th:hover {
+                    background-color: #e04344;
+                }
+                tbody td {
+                    padding: 12px 15px;
+                    border: 1px solid #ddd;
+                }
+                tbody tr:hover {
+                    background-color: #ffe6e6;
+                }
+                tbody tr td:first-child,
+                tbody tr td:nth-child(2) {
+                    cursor: pointer;
+                }
+                button {
+                    background-color: #ff4d4f;
+                    border: none;
+                    color: white;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+                    font-size: 14px;
+                }
+                button:hover {
+                    background-color: #d9363e;
+                }
+            `}</style>
+
             <Navbar />
 
-            <div className="container">
-                <div className="input-group">
+            <div className="container" style={{ padding: '20px' }}>
+                <div className="search-container">
                     <input
                         id="searchInput"
                         type="text"
@@ -108,33 +223,64 @@ const DashboardPage = () => {
                         onChange={handleSearch}
                         value={searchQuery}
                         ref={inputRef}
+                        className="search-input"
                     />
-                    <input
+                    <button
                         type="button"
-                        value="Clear"
                         onClick={clearSearch}
-                    />
+                        aria-label="Clear search"
+                        className="clear-button"
+                    >
+                        Clear
+                    </button>
                 </div>
 
-                {currentRecipes && currentRecipes.length > 0 ? (
-                    <table>
-                        <thead>
-                            <tr>
-                                <th onClick={() => handleSort('recipe_name')}>Name</th>
-                                <th onClick={() => handleSort('recipe_category')}>Category</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentRecipes.map(recipe => (
-                                <tr key={recipe.recipe_id} onClick={() => handleRowClick(`/recipes/${recipe.recipe_id}`)}>
-                                    <td>{recipe.recipe_name}</td>
-                                    <td>{recipe.recipe_category}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div style={{ marginBottom: '10px' }}>
+                    <label>
+                        Recipes per page:&nbsp;
+                        <select
+                            value={recipesPerPage}
+                            onChange={(e) => setState(prev => ({ ...prev, recipesPerPage: Number(e.target.value), currentPageNumber: 0 }))}
+                        >
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={15}>15</option>
+                            <option value={20}>20</option>
+                        </select>
+                    </label>
+                </div>
+
+                {loading ? (
+                    <p>Loading...</p>
                 ) : (
-                    <p>No recipes</p>
+                    currentRecipes.length > 0 ? (
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th onClick={() => handleSort('recipe_name')}>
+                                        Name {sortConfig.key === 'recipe_name' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                                    </th>
+                                    <th onClick={() => handleSort('recipe_category')}>
+                                        Category {sortConfig.key === 'recipe_category' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                                    </th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentRecipes.map(recipe => (
+                                    <tr key={recipe.recipe_id}>
+                                        <td onClick={() => handleRowClick(`/recipes/${recipe.recipe_id}`)}>{recipe.recipe_name}</td>
+                                        <td onClick={() => handleRowClick(`/recipes/${recipe.recipe_id}`)}>{recipe.recipe_category}</td>
+                                        <td>
+                                            <button onClick={() => handleDelete(recipe.recipe_id)}>Delete</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <p>No recipes found.</p>
+                    )
                 )}
 
                 <Pagination
@@ -146,7 +292,7 @@ const DashboardPage = () => {
             </div>
 
             <Footer />
-        </div>
+        </>
     );
 };
 
