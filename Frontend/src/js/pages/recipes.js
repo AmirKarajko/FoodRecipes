@@ -180,10 +180,15 @@ function RecipesPage() {
 
         <button
           className="delete-button"
-          onClick={() => (window.location.href = `/delete_recipe/${id}`)}
+          onClick={() => {
+            if (window.confirm('Are you sure you want to delete this recipe?')) {
+              window.location.href = `/delete_recipe/${id}`;
+            }
+          }}
         >
-          Delete recipe
+          Delete
         </button>
+
       </div>
     </>
   );
