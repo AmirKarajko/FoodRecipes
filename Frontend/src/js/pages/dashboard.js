@@ -1,16 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 import Pagination from '../components/pagination';
 
 const DashboardPage = () => {
-    const [recipesData, setRecipesData] = useState([]);
-    const [filteredRecipesData, setFilteredRecipesData] = useState([]);
-    const [currentPageNumber, setCurrentPageNumber] = useState(0);
-    const [recipesPerPage] = useState(15);
-    const [searchQuery, setSearchQuery] = useState("");
     const inputRef = useRef();
+
+    const [state, setState] = useState({
+        recipesData: [],
+        searchQuery: "",
+        currentPageNumber: 0,
+        recipesPerPage: 15
+    });
+
+    const { recipesData, searchQuery, currentPageNumber, recipesPerPage } = state;
 
     useEffect(() => {
         fetchRecipesData();
@@ -25,56 +29,71 @@ const DashboardPage = () => {
                 return response.json();
             })
             .then(data => {
-                setRecipesData(data);
-                setFilteredRecipesData(data);
+                setState(prev => ({ ...prev, recipesData: data }));
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
             });
-    }
+    };
 
     const handleSearch = (e) => {
         const query = e.target.value.toLowerCase();
-        const filteredData = recipesData.filter(recipe =>
-            recipe.recipe_name.toLowerCase().includes(query) || recipe.recipe_category.toLowerCase().includes(query)
-        );
-        setFilteredRecipesData(filteredData);
-        setCurrentPageNumber(0);
-        setSearchQuery(query);
+        setState(prev => ({
+            ...prev,
+            searchQuery: query,
+            currentPageNumber: 0
+        }));
         inputRef.current.focus();
-    }
+    };
 
     const clearSearch = () => {
-        setFilteredRecipesData(recipesData);
-        setCurrentPageNumber(0);
-        setSearchQuery("");
+        setState(prev => ({
+            ...prev,
+            searchQuery: "",
+            currentPageNumber: 0
+        }));
         inputRef.current.focus();
-    }
+    };
 
     const handlePageChange = (pageNumber) => {
-        setCurrentPageNumber(pageNumber - 1);
-    }
+        setState(prev => ({
+            ...prev,
+            currentPageNumber: pageNumber - 1
+        }));
+    };
 
     const handleRowClick = (url) => {
         window.location.href = url;
     };
 
     const handleSort = (criteria) => {
-        setFilteredRecipesData(prevData => {
-            const sortedData = [...prevData].sort((a, b) => {
+        setState(prev => {
+            const sortedData = [...filteredRecipes].sort((a, b) => {
                 const valueA = a[criteria].toLowerCase();
                 const valueB = b[criteria].toLowerCase();
                 if (valueA < valueB) return -1;
                 if (valueA > valueB) return 1;
                 return 0;
             });
-            return sortedData;
+            return {
+                ...prev,
+                recipesData: sortedData
+            };
         });
-    }
+    };
 
-    const indexOfLastRecipe = (currentPageNumber + 1) * recipesPerPage;
-    const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
-    const currentRecipes = filteredRecipesData.slice(indexOfFirstRecipe, indexOfLastRecipe);
+    const filteredRecipes = useMemo(() => {
+        if (!searchQuery) return recipesData;
+        return recipesData.filter(recipe =>
+            recipe.recipe_name.toLowerCase().includes(searchQuery) ||
+            recipe.recipe_category.toLowerCase().includes(searchQuery)
+        );
+    }, [recipesData, searchQuery]);
+
+    const currentRecipes = useMemo(() => {
+        const startIndex = currentPageNumber * recipesPerPage;
+        return filteredRecipes.slice(startIndex, startIndex + recipesPerPage);
+    }, [filteredRecipes, currentPageNumber, recipesPerPage]);
 
     return (
         <div>
@@ -82,11 +101,22 @@ const DashboardPage = () => {
 
             <div className="container">
                 <div className="input-group">
-                    <input id="searchInput" type="text" placeholder="Search" onChange={handleSearch} value={searchQuery} ref={inputRef} />
-                    <input type="button" value="Clear" onClick={clearSearch} />
+                    <input
+                        id="searchInput"
+                        type="text"
+                        placeholder="Search"
+                        onChange={handleSearch}
+                        value={searchQuery}
+                        ref={inputRef}
+                    />
+                    <input
+                        type="button"
+                        value="Clear"
+                        onClick={clearSearch}
+                    />
                 </div>
 
-                {currentRecipes != null && currentRecipes.length > 0 ? (
+                {currentRecipes && currentRecipes.length > 0 ? (
                     <table>
                         <thead>
                             <tr>
@@ -103,11 +133,13 @@ const DashboardPage = () => {
                             ))}
                         </tbody>
                     </table>
-                ) : (<p>No recipes</p>)}
+                ) : (
+                    <p>No recipes</p>
+                )}
 
                 <Pagination
                     recipesPerPage={recipesPerPage}
-                    totalRecipes={filteredRecipesData.length}
+                    totalRecipes={filteredRecipes.length}
                     currentPage={currentPageNumber + 1}
                     onPageChange={handlePageChange}
                 />
@@ -116,6 +148,6 @@ const DashboardPage = () => {
             <Footer />
         </div>
     );
-}
+};
 
 export default DashboardPage;
