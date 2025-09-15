@@ -1,32 +1,29 @@
-# FOOD RECIPES
-Created in React.
+# Food Recipes
+Food Recipes is a web application built with React for the frontend and Node.js/Express with MySQL for the backend.
 
-## Getting Started
-To start the project, follow these steps:
+## structure:
+  - Frontend/: React application
+  - Backend/: Node.js + Express backend
+  - sql/: SQL queries
 
-1. Import 'foodrecipes.sql' into database.
-2. Execute queries from the 'sql' folder.
+## setup:
+  database:
+    - import 'sql/foodrecipes.sql'.
+    - Execute queries from the 'sql' folder.
 
-### Terminal 1 (Server):
-	cd server
-	node server.js
-  
-### Terminal 2 (Client):
-	npm run build
-	npm start
+### backend:
+    path: Backend
+    commands:
+      - npm install
+      - node server.js
+    dependencies:
+      - express
+      - mysql
+      - cors
 
-## Creating a React App Project
-	npx create-react-app foodrecipes
- 	cd foodrecipes
-	npm install
-
-### Creating Backend
- 	md server
-	cd server
- 	npm install cors mysql express
-
-create api.js, db.js & server.js files
-
-# Copyright © 2024
-
-	
+### frontend:
+    path: Frontend
+    commands:
+      - npm install
+      - npm run build
+      - npm start
